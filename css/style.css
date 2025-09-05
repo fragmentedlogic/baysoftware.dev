@@ -479,3 +479,22 @@ header .brand img.brand-logo {
     max-width: 70vw;
   }
 }
+/* --- Mobile nav / hamburger --- */
+.nav-toggle{display:none;appearance:none;background:transparent;border:0;width:44px;height:38px;padding:6px;border-radius:.5rem}
+.nav-toggle .bar{display:block;height:2px;background:var(--fg);margin:5px 0;border-radius:2px}
+
+/* desktop keeps centered nav */
+@media (min-width:721px){
+  header .wrap{display:flex;align-items:center;gap:1rem;position:relative}
+  header nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:2rem;flex-wrap:wrap}
+}
+
+/* mobile: hamburger + vertical stack */
+@media (max-width:720px){
+  .nav-toggle{display:inline-flex;align-items:center;justify-content:center}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
+  header nav{position:static;transform:none;width:100%;display:none;flex-direction:column;gap:.25rem;padding:.5rem 0 .75rem}
+  header.nav-open nav{display:flex}
+  header nav a{display:block;padding:.65rem .75rem;border-radius:.5rem;background:#0d1430;border:1px solid var(--stroke-2);color:var(--fg)}
+  header .brand img.brand-logo{height:40px;width:auto;max-width:70vw} /* prevent distortion */
+}
