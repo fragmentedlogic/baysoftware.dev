@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="360" height="320" viewBox="0 0 360 320" role="img" aria-labelledby="title desc">
-  <title id="title">BAYByte the Capybara — 404 Mascot</title>
+  <title id="title">Byte$ the Capybara - 404 Mascot</title>
   <desc id="desc">A cute chibi capybara mascot holding a tiny laptop, with a 404 flag.</desc>
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity=".25"/></filter>
@@ -42,7 +42,7 @@
   <rect x="144" y="194" width="90" height="56" rx="8" fill="#0f172a"/>
   <rect x="144" y="194" width="90" height="56" rx="8" fill="#38bdf8" opacity=".12"/>
   <rect x="136" y="246" width="106" height="10" rx="3" fill="#0f172a"/>
-  <text x="189" y="223" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" fill="#38bdf8">Bay$_</text>
+  <text x="189" y="223" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="16" fill="#38bdf8">BAY$_</text>
 
   <!-- 404 flag -->
   <path d="M280 120v66" stroke="#0b1020" stroke-width="4"/>

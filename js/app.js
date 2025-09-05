@@ -1,8 +1,8 @@
 // -------- Data --------
 const allAnnouncements = [
-  { title: "New OSS Release", body: "We shipped v1.2 of Ledgernaut—now with faster sync.", href: "/pages/open-source.html" },
+  { title: "New OSS Release", body: "We shipped v1.2 of Ledgernaut-now with faster sync.", href: "/pages/open-source.html" },
   { title: "Bug Bash Friday", body: "Community triage session this Friday @ 2pm CT.", href: "/pages/blog.html" },
-  { title: "Security Update", body: "Important patch for OAuth proxy—review our notes.", href: "/pages/blog.html" },
+  { title: "Security Update", body: "Important patch for OAuth proxy-review our notes.", href: "/pages/blog.html" },
   { title: "Solutions", body: "Cloud-native platforms, data pipelines, and secure APIs built on proven OSS.", href: "/pages/services.html" },
   { title: "Open Source", body: "We maintain libraries and contribute upstream. Sustainability matters.", href: "/pages/open-source.html" },
   { title: "Work With Us", body: "Join a team that ships and shares. Remote-friendly, impact-driven.", href: "/pages/careers.html" },
@@ -11,7 +11,7 @@ const allAnnouncements = [
   { title: "RFP Window", body: "Seeking partners for healthcare data pipelines.", href: "/pages/contact.html" },
   { title: "Sponsor Us", body: "Back our work to keep core libraries sustainable.", href: "/pages/open-source.html" },
   { title: "Docs Refresh", body: "Improved developer guides & API examples.", href: "/pages/blog.html" },
-  { title: "Meetup", body: "Phoenix OSS meetup—cohosted with local devs.", href: "/pages/blog.html" },
+  { title: "Meetup", body: "Phoenix OSS meetup-cohosted with local devs.", href: "/pages/blog.html" },
 ];
 const highlightImages = [
   "img/highlights/engineer-4904884_640.jpg",
@@ -123,13 +123,30 @@ const setActiveNav = () => {
 
 const setYear = () => {
   const yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = new Date().getFullYear();
+  if (yearEl) yearEl.textContent = "" + new Date().getFullYear();
 };
 
-// -------- Boot --------
+function wireHamburger() {
+  const header = document.querySelector('header');
+  const btn = header?.querySelector('.nav-toggle');
+  const nav = header?.querySelector('#primary-nav');
+  if (!header || !btn || !nav) return;
+
+  btn.addEventListener('click', () => {
+    const open = header.classList.toggle('nav-open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    header.classList.remove('nav-open');
+    btn.setAttribute('aria-expanded', 'false');
+  }));
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadLayout();      // inject shared header/footer
-  setActiveNav();          // now safe to compute
+  await loadLayout();
+  wireHamburger();          // add this line
+  setActiveNav();
   setYear();
   renderHighlights();
   rotateAnnouncementsGroup();
