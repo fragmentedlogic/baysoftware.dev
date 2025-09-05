@@ -126,26 +126,26 @@ const setYear = () => {
   if (yearEl) yearEl.textContent = "" + new Date().getFullYear();
 };
 
-function wireHamburger() {
-  const header = document.querySelector('header');
-  const btn = header?.querySelector('.nav-toggle');
-  const nav = header?.querySelector('#primary-nav');
-  if (!header || !btn || !nav) return;
-
-  btn.addEventListener('click', () => {
-    const open = header.classList.toggle('nav-open');
-    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+// --- add this helper ---
+function wireHamburger(){
+  const header=document.querySelector('header');
+  const btn=header?.querySelector('.nav-toggle');
+  const nav=header?.querySelector('#primary-nav');
+  if(!header||!btn||!nav) return;
+  btn.addEventListener('click',()=>{
+    const open=header.classList.toggle('nav-open');
+    btn.setAttribute('aria-expanded',open?'true':'false');
   });
-
-  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
     header.classList.remove('nav-open');
-    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-expanded','false');
   }));
 }
 
+// --- in your boot sequence, after loadLayout() ---
 document.addEventListener("DOMContentLoaded", async () => {
   await loadLayout();
-  wireHamburger();          // add this line
+  wireHamburger();              // added
   setActiveNav();
   setYear();
   renderHighlights();
