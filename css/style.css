@@ -130,3 +130,24 @@ footer a:hover{color:var(--accent)}
 .nf-copy{margin:0 auto;text-align:center}
 .nf-actions{justify-content:center}
 .nf-mascot{display:block;margin:0 auto}
+.nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--accent);
+  width: 44px;
+  height: 38px;
+  padding: 6px;
+  border-radius: .5rem;
+}
+
+.nav-toggle .bar {
+  display: block;
+  width: 100%;           /* force full width inside button */
+  max-width: 24px;       /* cap so it doesn’t touch border */
+  height: 2px;
+  background: var(--accent); /* baby blue lines */
+  margin: 4px auto;      /* center horizontally */
+  border-radius: 2px;
+}
