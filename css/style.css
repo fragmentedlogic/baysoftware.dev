@@ -25,47 +25,49 @@ header .brand{display:flex;align-items:center;gap:.55rem;font-weight:700}
 header .brand a::after{content:"";display:block;height:3px;margin-top:.25rem;border-radius:999px;background:var(--accent);opacity:.9}
 header .brand img.brand-logo{height:56px;width:332px;flex:0 0 auto;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
 
-/* Centered nav */
-header nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:2rem;flex-wrap:wrap}
+/* Nav base (neutral) */
+header nav{display:flex;gap:2rem;flex-wrap:wrap}
 header nav a{color:var(--muted);padding:.5rem .75rem;border-radius:.5rem}
 header nav a:hover, header nav a.active{background:var(--accent);color:#0b1020}
 
-/* Hamburger */
-.nav-toggle{
-  display:none;
-  flex-direction:column;     /* stack bars */
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  background:transparent;
-  border:1px solid var(--accent); /* baby blue outline */
-  width:44px;height:38px;padding:6px;border-radius:.5rem;
-}
-.nav-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.nav-toggle .bar{
-  display:block;
-  width:24px;
-  height:2px;
-  background:var(--accent);  /* baby blue lines */
-  border-radius:2px;
-}
-
-/* Desktop */
+/* Desktop layout only */
 @media (min-width:721px){
   header .wrap{display:flex;align-items:center;gap:1rem;position:relative}
-  header nav{position:absolute;left:50%;transform:translateX(-50%)}
+  header nav{position:absolute;left:50%;transform:translateX(-50%)} /* centered */
+  .nav-toggle{display:none}                                         /* hidden on desktop */
 }
 
-/* Mobile */
+/* Mobile layout only */
 @media (max-width:720px){
   .row{min-height:56px}
-  .nav-toggle{display:inline-flex}
   header .wrap{display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
   header nav{position:static;transform:none;width:100%;display:none;flex-direction:column;gap:.25rem;padding:.5rem 0 .75rem}
   header.nav-open nav{display:flex}
   header nav a{display:block;padding:.65rem .75rem;border-radius:.5rem;background:#0d1430;border:1px solid var(--stroke-2);color:var(--fg)}
-  header nav a.active, header nav a:hover{background:var(--accent);color:#0b1020}
   header .brand img.brand-logo{height:40px;width:auto;max-width:70vw}
+}
+
+/* Hamburger button (visible on mobile, styles safe on desktop) */
+.nav-toggle{
+  display:inline-flex;            /* will be hidden by desktop media rule */
+  flex-direction:column;          /* stack bars vertically */
+  align-items:center;
+  justify-content:center;
+  gap:4px;                        /* space between bars */
+  background:transparent;
+  border:1px solid var(--accent); /* baby blue outline */
+  width:44px;height:38px;padding:6px;border-radius:.5rem;
+  z-index:1001;
+}
+.nav-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.nav-toggle .bar{
+  display:block;
+  width:24px;                     /* explicit width so they render */
+  height:2px;
+  background:var(--accent);       /* baby blue lines */
+  border-radius:2px;
+  margin:0 auto;                  /* centered */
+  pointer-events:none;
 }
 
 /* ---------- Main ---------- */
@@ -128,7 +130,7 @@ footer a:hover{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}}
 
-/* 404 page */
+/* 404 */
 .nf-wrap{display:flex;align-items:center;justify-content:center;min-height:60vh;padding:2rem 1rem;text-align:center;gap:2rem;flex-wrap:wrap}
 .nf-copy{max-width:38rem}
 .nf-actions{margin-top:1rem;display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
@@ -137,7 +139,7 @@ footer a:hover{color:var(--accent)}
 .nf-mascot{width:320px;max-width:40vw}
 .muted{color:#94a3b8;font-size:.95rem}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-/* 404 layout overrides */
+/* overrides */
 .nf-wrap{flex-direction:column;flex-wrap:nowrap;gap:1.25rem}
 .nf-copy{margin:0 auto;text-align:center}
 .nf-actions{justify-content:center}
