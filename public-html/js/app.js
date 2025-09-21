@@ -211,36 +211,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderHighlights();
   rotateAnnouncementsGroup();
 });
-/* ---- DEV: Under Construction redirect ---- */
-const UC = (() => {
-  // hard-coded array of paths to block in dev
-  const PAGES = [
-    '/pages/services.html',
-    '/pages/blog.html',
-    '/pages/privacy.html',
-    '/pages/terms.html',
-    '/pages/open-source.html',
-    // add more relative paths here
-  ];
 
-  const isDevHost = () => ['localhost','127.0.0.1','::1'].includes(location.hostname);
-  const urlDev = () => new URLSearchParams(location.search).get('dev') === '1';
-  const isDev = () => isDevHost() || urlDev() || localStorage.getItem('devMode') === '1';
+/* ---- Under Construction redirect (env-agnostic) ---- */
+const UC = (() => {
+  // Normalize a path to '/foo/bar.html' form (strip trailing slash, add .html if missing)
+  const norm = (pth) => {
+    try {
+      const url = new URL(pth, location.origin);
+      let out = url.pathname;
+      if (out.length > 1 && out.endsWith("/")) out = out.slice(0, -1);
+      if (!out.endsWith(".html")) out = out + ".html";
+      return out;
+    } catch { return pth; }
+  };
+
+  // Pages to mark as under construction (both with and without .html are accepted)
+  const PAGES = [
+    "/pages/services", "/pages/blog", "/pages/privacy", "/pages/terms",
+    "/pages/open-source",
+  ].map(norm);
 
   function maybeRedirect(){
-    if (!isDev()) return;
-    if (!PAGES.includes(location.pathname)) return;
-    if (location.pathname === '/under-construction.html') return;
+    let here = location.pathname;
+    if (here.length > 1 && here.endsWith("/")) here = here.slice(0, -1);
+    if (!here.endsWith(".html")) here = here + ".html";
 
-    const next = `/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
-    location.replace(next);
+    if (here === norm("/pages/under-construction.html")) return;
+    if (PAGES.includes(here)) {
+      const next = `/pages/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
+      location.replace(next);
+    }
   }
-
   return { maybeRedirect };
 })();
 
-/* --- Boot --- */
-document.addEventListener("DOMContentLoaded", async () => {
-  // your existing boot code here …
-  UC.maybeRedirect();
-});
+// Run ASAP to avoid flicker
+UC.maybeRedirect();
