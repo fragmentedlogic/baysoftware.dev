@@ -1,6 +1,6 @@
 /* ---------- Theme tokens ---------- */
 :root{
-  --max:1100px; --pad:1rem;
+  --max:1440px; --pad:1rem;
   --bg: #0f172a;
   --fg: #e5e7eb;
   --muted: #94a3b8;
@@ -292,3 +292,14 @@ footer a:hover{color:var(--accent)}
 .nf-copy{margin:0 auto;text-align:center}
 .nf-actions{justify-content:center}
 .nf-mascot{display:block;margin:0 auto}
+/* ========== Under Construction page ========== */
+.uc-page{display:grid;justify-items:center;gap:1rem;text-align:center;padding:2rem 1rem}
+.uc-page .uc-illo{width:min(520px, 90%);height:auto;display:block;filter:drop-shadow(0 12px 24px rgba(0,0,0,.35))}
+.uc-page h1{margin:.25rem 0;font-size:clamp(1.5rem,3.5vw,2.25rem)}
+.uc-page p{color:var(--muted);max-width:60ch;margin:.25rem auto 1rem}
+.uc-actions{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
+.btn.primary{background:var(--accent);color:#0b1020;border-color:var(--accent)}
+
+/* ========== Dev toggle (only rendered in dev) ========== */
+#uc-toggle{position:fixed;inset:auto 16px 16px auto;z-index:2147483000;display:flex;gap:.5rem;align-items:center;background:#0d1430;border:1px solid #1f2a44;border-radius:.5rem;padding:.5rem .6rem;color:#e5e7eb;font:14px system-ui}
+#uc-toggle button,#uc-toggle input[type="checkbox"]{cursor:pointer}

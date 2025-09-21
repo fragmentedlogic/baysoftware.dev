@@ -211,3 +211,36 @@ document.addEventListener("DOMContentLoaded", async () => {
   renderHighlights();
   rotateAnnouncementsGroup();
 });
+/* ---- DEV: Under Construction redirect ---- */
+const UC = (() => {
+  // hard-coded array of paths to block in dev
+  const PAGES = [
+    '/pages/services.html',
+    '/pages/blog.html',
+    '/pages/privacy.html',
+    '/pages/terms.html',
+    '/pages/open-source.html',
+    // add more relative paths here
+  ];
+
+  const isDevHost = () => ['localhost','127.0.0.1','::1'].includes(location.hostname);
+  const urlDev = () => new URLSearchParams(location.search).get('dev') === '1';
+  const isDev = () => isDevHost() || urlDev() || localStorage.getItem('devMode') === '1';
+
+  function maybeRedirect(){
+    if (!isDev()) return;
+    if (!PAGES.includes(location.pathname)) return;
+    if (location.pathname === '/under-construction.html') return;
+
+    const next = `/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
+    location.replace(next);
+  }
+
+  return { maybeRedirect };
+})();
+
+/* --- Boot --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  // your existing boot code here …
+  UC.maybeRedirect();
+});
