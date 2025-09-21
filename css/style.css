@@ -1,9 +1,14 @@
 /* ---------- Theme tokens ---------- */
 :root{
-  --max:1100px; --pad:1rem;
-  --bg:#0f172a; --fg:#e5e7eb; --muted:#94a3b8; --accent:#3893fa;
-  --card-bg-start:#0f1a3a; --card-bg-end:#0b1430;
-  --stroke:#1f2937; --stroke-2:#1f2a44;
+  --max:1440px; --pad:1rem;
+  --bg: #0f172a;
+  --fg: #e5e7eb;
+  --muted: #94a3b8;
+  --accent: #3893fa;
+  --card-bg-start: #0f1a3a;
+  --card-bg-end: #0b1430;
+  --stroke: #1f2937;
+  --stroke-2: #1f2a44;
 }
 
 /* ---------- Base ---------- */
@@ -15,46 +20,185 @@ a{color:var(--accent);text-decoration:none}
 /* ---------- Header / Nav ---------- */
 header{background:var(--bg);border-bottom:1px solid var(--stroke);position:sticky;top:0;z-index:1000}
 header .wrap{max-width:100%;padding:0 var(--pad);position:relative}
+
+/* Center group to page content width */
 .wrap{max-width:var(--max);margin:0 auto;padding:var(--pad)}
-.row{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:56px}
 
-/* Brand */
-header .brand{display:flex;align-items:center;gap:.55rem;font-weight:700}
-.brand a{position:relative;padding-left:0;display:inline-flex;align-items:center;gap:.55rem}
-.brand a::before{content:none !important}
-header .brand a::after{content:"";display:block;height:3px;margin-top:.25rem;border-radius:999px;background:var(--accent);opacity:.9}
-header .brand img.brand-logo{height:56px;width:332px;flex:0 0 auto;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.35))}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  min-height: 56px
+}
 
-/* Centered nav */
-header nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:2rem;flex-wrap:wrap}
-header nav a{color:var(--muted);padding:.5rem .75rem;border-radius:.5rem}
-header nav a:hover, header nav a.active{background:var(--accent);color:#0b1020}
+#primary-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;             /* spacing between logo and links */
+  white-space: nowrap;
+  flex-wrap: nowrap;
+  max-width: var(--max);
+  margin-left: 0;        /* flush left */
+  margin-right: auto;    /* consume remaining space */
+  justify-content: flex-start; /* left align content */
+}
 
-/* Hamburger */
-.nav-toggle{
-  display:none;appearance:none;background:transparent;border:1px solid var(--accent); /* changed: outline */
-  width:44px;height:38px;padding:6px;border-radius:.5rem
+/* ----- Hamburger left of logo (visible only when condensed) ----- */
+.nav-toggle {
+  display: none; /* shown in .nav-condense */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  width: 44px;
+  height: 38px;
+  padding: 6px;
+  border-radius: .5rem;
+  position: static;
+  margin-right: .75rem; /* sits left of the logo */
 }
 .nav-toggle:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-/* changed: force width + baby-blue bars */
-.nav-toggle .bar{display:block;width:24px;height:2px;background:var(--accent);margin:4px 0;border-radius:2px}
 
-/* Desktop */
-@media (min-width:721px){
-  header .wrap{display:flex;align-items:center;gap:1rem;position:relative}
-  header nav{position:absolute;left:50%;transform:translateX(-50%)}
+.nav-toggle .bar {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px
 }
 
-/* Mobile */
+/* Intrinsic-width measurement mode */
+header.measuring #primary-nav {
+  width: max-content;
+  justify-content: flex-start;
+}
+
+header.measuring #primary-nav .nav-links {
+  gap: 2rem;
+}
+
+header.measuring #primary-nav .nav-links a {
+  flex: 0 0 auto;
+}
+
+/* no stretching */
+header.measuring .nav-toggle {
+  display: none !important;
+}
+
+/* hide during measure */
+
+/* ----- Brand (inside nav, immediately right of hamburger) ----- */
+#primary-nav .brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem
+}
+
+#primary-nav .brand-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, .35))
+}
+
+#primary-nav .brand-link::after {
+  content: "";
+  display: block;
+  height: 3px;
+  margin-top: .25rem;
+  border-radius: 999px;
+  background: var(--accent);
+  opacity: .9
+}
+
+/* Nav link group spacing */
+#primary-nav .nav-links {
+  display: flex;
+  gap: 1rem;             /* was 2rem, reduce */
+  align-items: stretch;
+  flex: 1;
+  justify-content: center;
+}
+
+#primary-nav .nav-links a {
+  color: var(--muted);
+  padding: .5rem .75rem;
+  border-radius: .5rem;
+  text-align: center;
+  flex: 1 1 auto; /* equalize to largest */
+}
+
+#primary-nav .nav-links a:hover, #primary-nav .nav-links a.active {
+  background: var(--accent);
+  color: #0b1020
+}
+
+/* ----- Condensed mode (set by JS when brand+links exceed row width) ----- */
+header.nav-condense .nav-toggle {
+  display: inline-flex
+}
+
+/* show hamburger */
+header.nav-condense #primary-nav .nav-links {
+  display: none !important
+}
+
+/* hide inline links */
+
+/* Dropdown when opened */
+header.nav-condense.nav-open #primary-nav .nav-links {
+  display: flex !important;
+  flex-direction: column;
+  gap: .25rem;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: var(--bg);
+  padding: .5rem 0 .75rem;
+  border-top: 1px solid var(--stroke);
+}
+
+header.nav-condense.nav-open #primary-nav .nav-links a {
+  display: block;
+  padding: .65rem .75rem;
+  border-radius: .5rem;
+  background: #0d1430;
+  border: 1px solid var(--stroke-2);
+  color: var(--fg);
+  flex: 1 0 auto; /* equal width in the column too */
+}
+header.nav-condense.nav-open #primary-nav .nav-links a:hover,
+header.nav-condense.nav-open #primary-nav .nav-links a.active {
+  background: var(--accent);
+  color: #0b1020
+}
+
+/* Wide screens: hide hamburger unless condensed */
+@media (min-width:721px){
+  .row {
+    justify-content: center
+  }
+
+  .nav-toggle {
+    display: none
+  }
+
+  header.nav-condense .nav-toggle {
+    display: inline-flex
+  }
+}
+
+/* Tight screens: scale brand to avoid early condensation */
 @media (max-width:720px){
-  .row{min-height:56px}
-  .nav-toggle{display:inline-flex;align-items:center;justify-content:center}
-  header .wrap{display:flex;align-items:center;justify-content:space-between;padding:0 var(--pad)}
-  header nav{position:static;transform:none;width:100%;display:none;flex-direction:column;gap:.25rem;padding:.5rem 0 .75rem}
-  header.nav-open nav{display:flex}
-  header nav a{display:block;padding:.65rem .75rem;border-radius:.5rem;background:#0d1430;border:1px solid var(--stroke-2);color:var(--fg)}
-  header nav a.active, header nav a:hover{background:var(--accent);color:#0b1020}
-  header .brand img.brand-logo{height:40px;width:auto;max-width:70vw}
+  #primary-nav .brand-logo {
+    height: 40px;
+    max-width: 70vw
+  }
 }
 
 /* ---------- Main ---------- */
@@ -70,13 +214,18 @@ main{flex:1 0 auto;max-width:var(--max);margin:0 auto;padding:2rem 1rem 3rem}
 @media (max-width:900px){.grid,.announcements{grid-template-columns:1fr}}
 
 /* Cards */
-.card{position:relative;overflow:hidden;min-height:160px;padding:1rem;border:1px solid var(--stroke-2);border-radius:.9rem;
+.card{
+  position:relative;overflow:hidden;min-height:160px;padding:1rem;border:1px solid var(--stroke-2);border-radius:.9rem;
   background:linear-gradient(180deg,var(--card-bg-start),var(--card-bg-end));
   display:flex;flex-direction:column;justify-content:space-between;
   box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 12px 24px rgba(0,0,0,.25),0 6px 12px rgba(13,20,48,.45);
-  transition:transform .35s ease,box-shadow .35s ease,filter .35s ease;transform-style:preserve-3d}
-.card:hover{transform:translateY(-6px) rotateX(2deg) rotateY(2deg);
-  box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 18px 36px rgba(0,0,0,.35),0 8px 18px rgba(13,20,48,.55);filter:saturate(1.05)}
+  transition:transform .35s ease,box-shadow .35s ease,filter .35s ease;transform-style:preserve-3d
+}
+.card:hover{
+  transform:translateY(-6px) rotateX(2deg) rotateY(2deg);
+  box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 18px 36px rgba(0,0,0,.35),0 8px 18px rgba(13,20,48,.55);
+  filter:saturate(1.05)
+}
 .card-title{margin:.25rem 0 .5rem;font-size:1.1rem;text-align:center}
 .card-body{margin:0 0 .75rem;color:var(--muted)}
 .card-link{font-weight:600}
@@ -89,9 +238,21 @@ main{flex:1 0 auto;max-width:var(--max);margin:0 auto;padding:2rem 1rem 3rem}
 .grid .card .card-link:hover{color:var(--accent)}
 
 /* Sliding layer for announcement rotation */
-.card-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:1rem;background:inherit;
-  transition:transform .5s cubic-bezier(.4,0,.2,1);will-change:transform}
-.card-content.outgoing{z-index:0}
+.card-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+  background: inherit;
+  transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+  will-change: transform
+}
+
+.card-content.outgoing {
+  z-index: 0
+}
 
 /* Blocks */
 .tile,.post,.project,.role{background:#0d1430;border:1px solid var(--stroke-2);border-radius:.8rem;padding:1rem}
@@ -131,4 +292,14 @@ footer a:hover{color:var(--accent)}
 .nf-copy{margin:0 auto;text-align:center}
 .nf-actions{justify-content:center}
 .nf-mascot{display:block;margin:0 auto}
-```0
+/* ========== Under Construction page ========== */
+.uc-page{display:grid;justify-items:center;gap:1rem;text-align:center;padding:2rem 1rem}
+.uc-page .uc-illo{width:min(520px, 90%);height:auto;display:block;filter:drop-shadow(0 12px 24px rgba(0,0,0,.35))}
+.uc-page h1{margin:.25rem 0;font-size:clamp(1.5rem,3.5vw,2.25rem)}
+.uc-page p{color:var(--muted);max-width:60ch;margin:.25rem auto 1rem}
+.uc-actions{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
+.btn.primary{background:var(--accent);color:#0b1020;border-color:var(--accent)}
+
+/* ========== Dev toggle (only rendered in dev) ========== */
+#uc-toggle{position:fixed;inset:auto 16px 16px auto;z-index:2147483000;display:flex;gap:.5rem;align-items:center;background:#0d1430;border:1px solid #1f2a44;border-radius:.5rem;padding:.5rem .6rem;color:#e5e7eb;font:14px system-ui}
+#uc-toggle button,#uc-toggle input[type="checkbox"]{cursor:pointer}

@@ -1,8 +1,12 @@
 // -------- Data --------
 const allAnnouncements = [
-  { title: "New OSS Release", body: "We shipped v1.2 of Ledgernaut-now with faster sync.", href: "/pages/open-source.html" },
+  {
+    title: "New OSS Release",
+    body: "We shipped v1.2 of Ledgernaut—now with faster sync.",
+    href: "/pages/open-source.html"
+  },
   { title: "Bug Bash Friday", body: "Community triage session this Friday @ 2pm CT.", href: "/pages/blog.html" },
-  { title: "Security Update", body: "Important patch for OAuth proxy-review our notes.", href: "/pages/blog.html" },
+  {title: "Security Update", body: "Important patch for OAuth proxy—review our notes.", href: "/pages/blog.html"},
   { title: "Solutions", body: "Cloud-native platforms, data pipelines, and secure APIs built on proven OSS.", href: "/pages/services.html" },
   { title: "Open Source", body: "We maintain libraries and contribute upstream. Sustainability matters.", href: "/pages/open-source.html" },
   { title: "Work With Us", body: "Join a team that ships and shares. Remote-friendly, impact-driven.", href: "/pages/careers.html" },
@@ -11,8 +15,9 @@ const allAnnouncements = [
   { title: "RFP Window", body: "Seeking partners for healthcare data pipelines.", href: "/pages/contact.html" },
   { title: "Sponsor Us", body: "Back our work to keep core libraries sustainable.", href: "/pages/open-source.html" },
   { title: "Docs Refresh", body: "Improved developer guides & API examples.", href: "/pages/blog.html" },
-  { title: "Meetup", body: "Phoenix OSS meetup-cohosted with local devs.", href: "/pages/blog.html" },
+  {title: "Meetup", body: "Phoenix OSS meetup—cohosted with local devs.", href: "/pages/blog.html"},
 ];
+
 const highlightImages = [
   "img/highlights/engineer-4904884_640.jpg",
   "img/highlights/website-8305451_640.jpg",
@@ -43,8 +48,7 @@ async function inject(url, targetSelector) {
     if (!res.ok) throw new Error(`Failed to load ${url}`);
     target.innerHTML = await res.text();
   } catch (e) {
-    // silenced in prod; uncomment for debug
-    // console.error(e);
+    /* no-op in prod */
   }
 }
 
@@ -126,7 +130,7 @@ const setYear = () => {
   if (yearEl) yearEl.textContent = "" + new Date().getFullYear();
 };
 
-// --- add this helper ---
+// Toggle dropdown on hamburger
 function wireHamburger(){
   const header=document.querySelector('header');
   const btn=header?.querySelector('.nav-toggle');
@@ -142,12 +146,101 @@ function wireHamburger(){
   }));
 }
 
-// --- in your boot sequence, after loadLayout() ---
+/* ---------- NEW: condense nav when brand+links don't fit one line ----------
+   Assumes header markup:
+   <nav id="primary-nav">
+     <a class="brand-link">...</a>
+     <div class="nav-links"> <a>Home</a> ... </div>
+   </nav>
+
+   Behavior:
+   - When condensed, header gets .nav-condense. Hamburger shows, .nav-links hide.
+   - When expanded, hamburger hides, .nav-links flow inline next to brand.
+--------------------------------------------------------------------------- */
+function updateNavCondense(){
+  const header = document.querySelector('header');
+  const row = header?.querySelector('.row');
+  const nav = header?.querySelector('#primary-nav');
+  if (!header || !row || !nav) return;
+
+  // snapshot current state
+  const wasCondensed = header.classList.contains('nav-condense');
+  const wasOpen = header.classList.contains('nav-open');
+
+  // Enter measuring mode: intrinsic widths, no hamburger
+  header.classList.add('measuring');
+  header.classList.remove('nav-condense', 'nav-open'); // ensure inline layout
+  // Force a reflow so styles apply before measuring
+  void nav.offsetWidth;
+
+  // Compute needed vs available
+  const needed = Math.ceil(nav.scrollWidth);          // intrinsic width of [brand + links]
+  const avail  = Math.max(0, Math.floor(row.clientWidth - 24)); // small gutter
+
+  const condense = needed > avail;
+
+  // Exit measuring mode and set final state
+  header.classList.remove('measuring');
+  header.classList.toggle('nav-condense', condense);
+
+  // Close dropdown if returning to full inline
+  if (!condense && wasOpen) {
+    header.classList.remove('nav-open');
+    const btn = header.querySelector('.nav-toggle');
+    if (btn) btn.setAttribute('aria-expanded','false');
+  }
+}
+
+
+function wireNavCondense() {
+  // run now and after layout shifts
+  updateNavCondense();
+  window.addEventListener('resize', updateNavCondense, {passive: true});
+  // fonts/images can shift metrics
+  setTimeout(updateNavCondense, 100);
+  setTimeout(updateNavCondense, 500);
+}
+
+// --- Boot ---
 document.addEventListener("DOMContentLoaded", async () => {
-  await loadLayout();
-  wireHamburger();              // added
+  await loadLayout();            // inject header/footer
+  wireHamburger();               // hook hamburger behavior
+  wireNavCondense();             // compute condensed vs full
   setActiveNav();
   setYear();
   renderHighlights();
   rotateAnnouncementsGroup();
+});
+/* ---- DEV: Under Construction redirect ---- */
+const UC = (() => {
+  // hard-coded array of paths to block in dev
+  const PAGES = [
+    '/pages/services.html',
+    '/pages/blog.html',
+    '/pages/privacy.html',
+    '/pages/terms.html',
+    '/pages/open-source.html',
+    // add more relative paths here
+  ];
+
+  const isDevHost = () => ['localhost','127.0.0.1','::1'].includes(location.hostname);
+  const urlDev = () => new URLSearchParams(location.search).get('dev') === '1';
+  const isDev = () => isDevHost() || urlDev() || localStorage.getItem('devMode') === '1';
+
+  function maybeRedirect(){
+    if (!isDev()) return;
+    if (!PAGES.includes(location.pathname)) return;
+    if (location.pathname === '/under-construction.html') return;
+
+    const next = `/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
+    location.replace(next);
+  }
+
+  return { maybeRedirect };
+})();
+
+/* --- Boot --- */
+document.addEventListener("DOMContentLoaded", async () => {
+  // your existing boot code here …
+  UC.maybeRedirect();
 });

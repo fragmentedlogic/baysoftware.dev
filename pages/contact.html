@@ -10,28 +10,70 @@
   <meta name="description" content="Contact - BAY Software - Professional services, open-source platforms, and engineering best practices by BAY Software.">
 </head>
 <body>
-  <div id="site-header" data-include="/partials/header.html"></div>
-  <main id="main">
-    <h1>Contact</h1>
-      <p>Tell us about your project or how you’d like to collaborate in open source.</p>
-      <form aria-label="Contact form">
-        <label>
-          Name
-          <input type="text" placeholder="Ada Lovelace" required />
-        </label>
-        <label>
-          Email
-          <input type="email" placeholder="you@company.com" required />
-        </label>
-        <label>
-          Message
-          <textarea rows="6" placeholder="What can we build together?"></textarea>
-        </label>
-        <button type="submit" aria-disabled="true" title="Demo form">Send (demo)</button>
-      </form>
-  </main>
-  <div id="site-footer" data-include="/partials/footer.html"></div>
-  <script type="module" src="/js/app.js"></script>
+<div id="site-header" data-include="/partials/header.html"></div>
+<main id="main" class="wrap">
+  <h1>Contact</h1>
+  <p class="muted">We’re a remote-first software company. Reach us the way that works for you.</p>
+
+  <!-- Unified grid for form + cards -->
+  <section aria-labelledby="reach">
+    <h2 id="reach" class="sr-only">Ways to reach us</h2>
+    <div class="grid contact-cards">
+
+      <!-- Form -->
+      <article class="card span-all">
+        <h3 class="card-title">Send us a message</h3>
+        <form aria-label="Contact form" action="mailto:support@baysoftware.dev" method="post" enctype="text/plain">
+          <label>Name <input type="text" placeholder="Ada Lovelace" required></label>
+          <label>Email <input type="email" placeholder="you@company.com" required></label>
+          <label>Message <textarea rows="6" placeholder="What can we build together?"></textarea></label>
+          <button type="submit">Send</button>
+        </form>
+      </article>
+
+      <!-- Call -->
+      <article class="card">
+        <div>
+          <h3 class="card-title">Call</h3>
+          <p style="text-align:center;"><a class="card-body" href="tel:19283206353">(928) 320-6353</a></p>
+          <ul class="contact-list" style="list-style-position: inside; list-style-type: disc;">
+            <li>Weekdays: 9 AM–5 PM (MST)</li>
+            <li>Weekends: On-call for incidents></li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- Email -->
+      <article class="card">
+        <div>
+          <h3 class="card-title">Email</h3>
+          <p class="card-body">Fastest for sales, support, and OSS.</p>
+          <ul class="contact-list" style="list-style-position: inside; list-style-type: disc;">
+            <li><a href="mailto:support@baysoftware.dev">support@baysoftware.dev</a></li>
+            <li><a href="mailto:sales@baysoftware.dev">sales@baysoftware.dev</a></li>
+            <li><a href="mailto:oss@baysoftware.dev">oss@baysoftware.dev</a></li>
+          </ul>
+        </div>
+      </article>
+
+      <!-- Engage -->
+      <article class="card">
+        <div>
+          <h3 class="card-title">Engage</h3>
+          <p class="card-body">Follow, DM, or open an issue.</p>
+          <div class="socials">
+            <a href="https://github.com/BAY-Software" aria-label="GitHub">GitHub</a>
+            <a href="https://www.linkedin.com/company/baysoftware" aria-label="LinkedIn">LinkedIn</a>
+            <a href="https://x.com" aria-label="X">X</a>
+          </div>
+          <p class="muted small">Replies weekdays 9 AM–5 PM (MST).</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+<div id="site-footer" data-include="/partials/footer.html"></div>
+<script type="module" src="/js/app.js"></script>
 <noscript><div style="padding:1rem;text-align:center">JavaScript is disabled. Header and footer may not appear.</div></noscript>
 </body>
 </html>
