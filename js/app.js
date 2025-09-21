@@ -157,33 +157,40 @@ function wireHamburger(){
    - When condensed, header gets .nav-condense. Hamburger shows, .nav-links hide.
    - When expanded, hamburger hides, .nav-links flow inline next to brand.
 --------------------------------------------------------------------------- */
-function updateNavCondense() {
+function updateNavCondense(){
   const header = document.querySelector('header');
   const row = header?.querySelector('.row');
   const nav = header?.querySelector('#primary-nav');
   if (!header || !row || !nav) return;
 
-  // Temporarily ensure inline measurement (remove condense while measuring)
+  // snapshot current state
   const wasCondensed = header.classList.contains('nav-condense');
-  if (wasCondensed) header.classList.remove('nav-condense', 'nav-open');
+  const wasOpen = header.classList.contains('nav-open');
 
-  // Total inline width needed for the whole nav row (brand + links, no wrap)
-  // nav.scrollWidth is robust for flex no-wrap rows
-  const needed = Math.ceil(nav.scrollWidth);
+  // Enter measuring mode: intrinsic widths, no hamburger
+  header.classList.add('measuring');
+  header.classList.remove('nav-condense', 'nav-open'); // ensure inline layout
+  // Force a reflow so styles apply before measuring
+  void nav.offsetWidth;
 
-  // Available width inside the row, minus a small gutter
-  const avail = Math.max(0, Math.floor(row.clientWidth - 32));
+  // Compute needed vs available
+  const needed = Math.ceil(nav.scrollWidth);          // intrinsic width of [brand + links]
+  const avail  = Math.max(0, Math.floor(row.clientWidth - 24)); // small gutter
 
   const condense = needed > avail;
 
-  // Restore state
+  // Exit measuring mode and set final state
+  header.classList.remove('measuring');
   header.classList.toggle('nav-condense', condense);
-  if (!condense) {
-    const btn = header.querySelector('.nav-toggle');
+
+  // Close dropdown if returning to full inline
+  if (!condense && wasOpen) {
     header.classList.remove('nav-open');
-    if (btn) btn.setAttribute('aria-expanded', 'false');
+    const btn = header.querySelector('.nav-toggle');
+    if (btn) btn.setAttribute('aria-expanded','false');
   }
 }
+
 
 function wireNavCondense() {
   // run now and after layout shifts
