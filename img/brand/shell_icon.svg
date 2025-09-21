@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 44 44" role="img" aria-labelledby="t d">
-  <title id="t">Shell prompt icon</title>
-  <desc id="d">Square terminal prompt with $_</desc>
-  <rect x="0.5" y="0.5" width="43" height="43" rx="8" fill="#0f172a" stroke="#334155"></rect>
-  <text x="22" y="22" text-anchor="middle" dominant-baseline="middle" font-family="system-ui,Segoe UI,Roboto,ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace" font-size="18" font-weight="700" fill="#38bdf8">$_</text>
-</svg>
