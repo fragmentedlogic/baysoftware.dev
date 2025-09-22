@@ -45,10 +45,26 @@ header.nav-condense.nav-open #primary-nav .nav-links a{
 }
 @media (min-width:721px){.row{justify-content:center} .nav-toggle{display:none} header.nav-condense .nav-toggle{display:inline-flex}}
 @media (max-width:720px){#primary-nav .brand-logo{height:40px;max-width:70vw}}
-
+#primary-nav { position: relative; }
+.nav-active-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 3px;
+  background: var(--accent);
+  transition: transform 0.3s cubic-bezier(.4,0,.2,1), width 0.3s cubic-bezier(.4,0,.2,1);
+  border-radius: 2px;
+}
 /* ---------- Main ---------- */
-main{flex:1 0 auto;max-width:var(--max);margin:0 auto;padding:2rem 1rem 3rem}
-
+main {
+  flex: 1 0 auto;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+  
+  /* SPA fade transition */
+  transition: opacity 0.3s ease;
+  opacity: 1;
+}
 /* ---------- Hero (index) ---------- */
 .hero{display:grid;gap:1rem;text-align:center;padding:2rem 1rem 1rem}
 .hero h1{margin:0;font-size:clamp(2rem,3vw + 1rem,3rem)}

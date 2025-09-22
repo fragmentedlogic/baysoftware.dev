@@ -1,12 +1,8 @@
 // -------- Data --------
 const allAnnouncements = [
-  {
-    title: "New OSS Release",
-    body: "We shipped v1.2 of Ledgernaut—now with faster sync.",
-    href: "pages/open-source.html"
-  },
+  { title: "New OSS Release", body: "We shipped v1.2 of Ledgernaut—now with faster sync.", href: "pages/open-source.html" },
   { title: "Bug Bash Friday", body: "Community triage session this Friday @ 2pm CT.", href: "pages/blog.html" },
-  {title: "Security Update", body: "Important patch for OAuth proxy—review our notes.", href: "pages/blog.html"},
+  { title: "Security Update", body: "Important patch for OAuth proxy—review our notes.", href: "pages/blog.html" },
   { title: "Solutions", body: "Cloud-native platforms, data pipelines, and secure APIs built on proven OSS.", href: "pages/services.html" },
   { title: "Open Source", body: "We maintain libraries and contribute upstream. Sustainability matters.", href: "pages/open-source.html" },
   { title: "Work With Us", body: "Join a team that ships and shares. Remote-friendly, impact-driven.", href: "pages/careers.html" },
@@ -15,7 +11,7 @@ const allAnnouncements = [
   { title: "RFP Window", body: "Seeking partners for healthcare data pipelines.", href: "pages/contact.html" },
   { title: "Sponsor Us", body: "Back our work to keep core libraries sustainable.", href: "pages/open-source.html" },
   { title: "Docs Refresh", body: "Improved developer guides & API examples.", href: "pages/blog.html" },
-  {title: "Meetup", body: "Phoenix OSS meetup—cohosted with local devs.", href: "pages/blog.html"},
+  { title: "Meetup", body: "Phoenix OSS meetup—cohosted with local devs.", href: "pages/blog.html" },
 ];
 
 const highlightImages = [
@@ -33,13 +29,13 @@ const highlightImages = [
 // -------- Utils --------
 const pickRandom = (source, n) => [...source].sort(() => Math.random() - 0.5).slice(0, n);
 
-const renderCardContent = (ann) => `
+const renderCardContent = ann => `
   <h3 class="card-title">${ann.title}</h3>
   <p class="card-body">${ann.body}</p>
   ${ann.href ? `<a class="card-link" href="${ann.href}">Learn more →</a>` : ""}
 `;
 
-// -------- Layout includes --------
+// -------- Layout Includes --------
 async function inject(url, targetSelector) {
   const target = document.querySelector(targetSelector);
   if (!target) return;
@@ -47,9 +43,7 @@ async function inject(url, targetSelector) {
     const res = await fetch(url, { cache: "no-cache" });
     if (!res.ok) throw new Error(`Failed to load ${url}`);
     target.innerHTML = await res.text();
-  } catch (e) {
-    /* no-op in prod */
-  }
+  } catch {}
 }
 
 async function loadLayout() {
@@ -81,7 +75,7 @@ setInterval(() => {
   renderHighlights();
 }, 30 * 60 * 1000);
 
-// -------- Bottom announcements (one-at-a-time random flip) --------
+// -------- Bottom Announcements --------
 const rotateAnnouncementsGroup = (minMs = 4000, maxMs = 9000, slideMs = 500) => {
   const slots = document.querySelectorAll("[data-announcement-slot]");
   if (!slots.length) return;
@@ -89,28 +83,20 @@ const rotateAnnouncementsGroup = (minMs = 4000, maxMs = 9000, slideMs = 500) => 
   const pool = allAnnouncements.filter(a => !highlightAnnouncements.includes(a));
   if (!pool.length) return;
 
-  // keep an index cursor for each slot
   const cursors = Array.from(slots, (_, i) => i % pool.length);
 
-  // initial render
   slots.forEach((slot, i) => {
-    slot.innerHTML =
-      `<div class="card-content" style="transform:translateX(0);">
-         ${renderCardContent(pool[cursors[i]])}
-       </div>`;
+    slot.innerHTML = `<div class="card-content" style="transform:translateX(0);">${renderCardContent(pool[cursors[i]])}</div>`;
   });
 
   const randDelay = () => Math.floor(Math.random() * (maxMs - minMs)) + minMs;
 
   const flipOne = () => {
-    // pick a random slot
     const idx = Math.floor(Math.random() * slots.length);
     const slot = slots[idx];
     if (!slot) return;
 
     const oldContent = slot.querySelector(".card-content");
-
-    // advance cursor
     cursors[idx] = (cursors[idx] + slots.length) % pool.length;
 
     const incoming = document.createElement("div");
@@ -119,7 +105,7 @@ const rotateAnnouncementsGroup = (minMs = 4000, maxMs = 9000, slideMs = 500) => 
     incoming.innerHTML = renderCardContent(pool[cursors[idx]]);
     slot.appendChild(incoming);
 
-    void incoming.offsetWidth; // reflow
+    void incoming.offsetWidth;
     incoming.style.transform = "translateX(0)";
 
     if (oldContent) {
@@ -128,143 +114,164 @@ const rotateAnnouncementsGroup = (minMs = 4000, maxMs = 9000, slideMs = 500) => 
       setTimeout(() => oldContent.remove(), slideMs);
     }
 
-    // schedule next random flip
     setTimeout(flipOne, randDelay());
   };
 
-  // start the cycle
   setTimeout(flipOne, randDelay());
 };
 
+// -------- Nav + Hamburger --------
+let activeIndicator;
 
-// -------- Nav + Footer --------
-const setActiveNav = () => {
-  const currentPage = location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll("header nav a").forEach(a => {
-    const href = a.getAttribute("href") || "";
-    if (href.endsWith(currentPage)) a.classList.add("active");
-    if (currentPage === "index.html" && (href === "/" || href.endsWith("/index.html"))) a.classList.add("active");
+function initNav() {
+  const header = document.querySelector('header');
+  const nav = header?.querySelector('#primary-nav');
+  if (!header || !nav) return;
+
+  const btn = header.querySelector('.nav-toggle');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      const open = header.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+  }
+
+  nav.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const href = a.getAttribute('href');
+      if (!href) return;
+      navigate(href);
+    });
   });
-};
 
-const setYear = () => {
-  const yearEl = document.getElementById("year");
-  if (yearEl) yearEl.textContent = "" + new Date().getFullYear();
-};
+  if (!activeIndicator) {
+    activeIndicator = document.createElement('div');
+    activeIndicator.className = 'nav-active-indicator';
+    activeIndicator.style.position = 'absolute';
+    activeIndicator.style.height = '3px';
+    activeIndicator.style.background = 'var(--accent)';
+    activeIndicator.style.bottom = '0';
+    activeIndicator.style.transition = 'all 0.3s ease';
+    nav.appendChild(activeIndicator);
+  }
 
-// Toggle dropdown on hamburger
-function wireHamburger(){
-  const header=document.querySelector('header');
-  const btn=header?.querySelector('.nav-toggle');
-  const nav=header?.querySelector('#primary-nav');
-  if(!header||!btn||!nav) return;
-  btn.addEventListener('click',()=>{
-    const open=header.classList.toggle('nav-open');
-    btn.setAttribute('aria-expanded',open?'true':'false');
-  });
-  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-    header.classList.remove('nav-open');
-    btn.setAttribute('aria-expanded','false');
-  }));
+  updateActiveNav();
+  window.addEventListener('resize', updateActiveNav);
 }
 
-/* ---------- NEW: condense nav when brand+links don't fit one line ----------
-   Assumes header markup:
-   <nav id="primary-nav">
-     <a class="brand-link">...</a>
-     <div class="nav-links"> <a>Home</a> ... </div>
-   </nav>
+function updateActiveNav() {
+  const nav = document.querySelector('#primary-nav');
+  if (!nav) return;
 
-   Behavior:
-   - When condensed, header gets .nav-condense. Hamburger shows, .nav-links hide.
-   - When expanded, hamburger hides, .nav-links flow inline next to brand.
---------------------------------------------------------------------------- */
-function updateNavCondense(){
-  const header = document.querySelector('header');
-  const row = header?.querySelector('.row');
-  const nav = header?.querySelector('#primary-nav');
-  if (!header || !row || !nav) return;
+  // Normalize current path: always /<filename>.html or /
+  let currentPath = location.pathname;
+  if (currentPath === "/") currentPath = "/index.html";
 
-  // snapshot current state
-  const wasCondensed = header.classList.contains('nav-condense');
-  const wasOpen = header.classList.contains('nav-open');
+  const links = nav.querySelectorAll('a');
+  let active = null;
 
-  // Enter measuring mode: intrinsic widths, no hamburger
-  header.classList.add('measuring');
-  header.classList.remove('nav-condense', 'nav-open'); // ensure inline layout
-  // Force a reflow so styles apply before measuring
-  void nav.offsetWidth;
+  links.forEach(a => {
+    const href = a.getAttribute('href');
+    if (!href) return;
+    
+    // Normalize href: ensure leading /
+    const absHref = href.startsWith("/") ? href : "/" + href.replace(/^\/+/, "");
 
-  // Compute needed vs available
-  const needed = Math.ceil(nav.scrollWidth);          // intrinsic width of [brand + links]
-  const avail  = Math.max(0, Math.floor(row.clientWidth - 24)); // small gutter
+    a.classList.remove('active');
+    if (absHref === currentPath) {
+      a.classList.add('active');
+      active = a;
+    }
+  });
 
-  const condense = needed > avail;
+  // Position indicator
+  if (active && activeIndicator) {
+    const rect = active.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+    activeIndicator.style.width = rect.width + "px";
+    activeIndicator.style.transform = `translateX(${rect.left - navRect.left}px)`;
+  }
+}
+// -------- SPA Navigation & Redirects --------
+const UNDER_CONSTRUCTION_PAGES = [
+  "pages/services.html",
+  "pages/blog.html",
+  "pages/privacy.html",
+  "pages/terms.html",
+  "pages/open-source.html"
+];
 
-  // Exit measuring mode and set final state
-  header.classList.remove('measuring');
-  header.classList.toggle('nav-condense', condense);
+function normalizePath(p) {
+  // Remove leading slash
+  if (p.startsWith("/")) p = p.slice(1);
 
-  // Close dropdown if returning to full inline
-  if (!condense && wasOpen) {
-    header.classList.remove('nav-open');
-    const btn = header.querySelector('.nav-toggle');
-    if (btn) btn.setAttribute('aria-expanded','false');
+  // Collapse ../ or ./ in path
+  const segments = p.split("/").filter(Boolean);
+  const stack = [];
+  for (const seg of segments) {
+    if (seg === "..") stack.pop();
+    else if (seg !== ".") stack.push(seg);
+  }
+
+  let normalized = stack.join("/");
+  if (!normalized.endsWith(".html")) normalized += ".html";
+  return normalized;
+}
+
+function maybeRedirect(norm) {
+  if (UNDER_CONSTRUCTION_PAGES.includes(norm)) {
+    const absPath = "/under-construction.html"; // ✅ always root-based
+    location.replace(absPath);
+    return true;
+  }
+  return false;
+}
+
+async function navigate(href) {
+  const path = href.endsWith(".html") ? href : href + ".html";
+  const norm = normalizePath(path);
+
+  console.log(path);
+  console.log(norm);
+
+  if (maybeRedirect(norm)) return;
+
+  if (norm === ".html" || norm === "index.html") {
+    window.location.href = "/";
+    return;
+  }
+
+  try {
+    const absPath = "/" + norm.replace(/^\/+/, ""); // ✅ ensure absolute
+
+    const res = await fetch(absPath, { cache: "no-cache" });
+    if (!res.ok) throw new Error(`Failed to load ${absPath}`);
+
+    const html = await res.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    const main = document.querySelector("main");
+    if (main) main.innerHTML = doc.querySelector("main")?.innerHTML || "";
+
+    history.pushState({}, "", absPath); // ✅ always absolute
+    updateActiveNav();
+  } catch (e) {
+    console.error("Navigation error:", e);
   }
 }
 
-function wireNavCondense() {
-  // run now and after layout shifts
-  updateNavCondense();
-  window.addEventListener('resize', updateNavCondense, {passive: true});
-  // fonts/images can shift metrics
-  setTimeout(updateNavCondense, 100);
-  setTimeout(updateNavCondense, 500);
-}
-
-// --- Boot ---
-document.addEventListener("DOMContentLoaded", async () => {
-  await loadLayout();            // inject header/footer
-  wireHamburger();               // hook hamburger behavior
-  wireNavCondense();             // compute condensed vs full
-  setActiveNav();
-  setYear();
-  renderHighlights();
-  rotateAnnouncementsGroup();    // bottom cards only, now staggered
+window.addEventListener("popstate", () => {
+  navigate(location.pathname.replace(/^\//, ""));
 });
 
-/* ---- Under Construction redirect (env-agnostic) ---- */
-const UC = (() => {
-  // Normalize a path to '/foo/bar.html' form (strip trailing slash, add .html if missing)
-  const norm = (pth) => {
-    try {
-      const url = new URL(pth, location.origin);
-      let out = url.pathname;
-      if (out.length > 1 && out.endsWith("/")) out = out.slice(0, -1);
-      if (!out.endsWith(".html")) out = out + ".html";
-      return out;
-    } catch { return pth; }
-  };
-
-  // Pages to mark as under construction (both with and without .html are accepted)
-  const PAGES = [
-    "pages/services", "pages/blog", "pages/privacy", "pages/terms",
-    "pages/open-source",
-  ].map(norm);
-
-  function maybeRedirect(){
-    let here = location.pathname;
-    if (here.length > 1 && here.endsWith("/")) here = here.slice(0, -1);
-    if (!here.endsWith(".html")) here = here + ".html";
-
-    if (here === norm("/under-construction.html")) return;
-    if (PAGES.includes(here)) {
-      const next = `/pages/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
-      location.replace(next);
-    }
-  }
-  return { maybeRedirect };
-})();
-
-// Run ASAP to avoid flicker
-UC.maybeRedirect();
+ 
+// -------- Boot --------
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadLayout();
+  initNav();
+  renderHighlights();
+  rotateAnnouncementsGroup();
+  updateActiveNav();
+});
