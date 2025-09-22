@@ -1,4 +1,4 @@
-// -------- Data --------
+// -------- Data ---------
 const allAnnouncements = [
   {
     title: "New OSS Release",
