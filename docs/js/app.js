@@ -81,61 +81,39 @@ setInterval(() => {
   renderHighlights();
 }, 30 * 60 * 1000);
 
-// -------- Bottom announcements (one-at-a-time random flip) --------
-const rotateAnnouncementsGroup = (minMs = 4000, maxMs = 9000, slideMs = 500) => {
+const rotateAnnouncementsGroup = (intervalMs = 6000, slideMs = 500) => {
   const slots = document.querySelectorAll("[data-announcement-slot]");
   if (!slots.length) return;
 
   const pool = allAnnouncements.filter(a => !highlightAnnouncements.includes(a));
-  if (!pool.length) return;
+  let start = 0;
 
-  // keep an index cursor for each slot
-  const cursors = Array.from(slots, (_, i) => i % pool.length);
-
-  // initial render
+  // Initial render
   slots.forEach((slot, i) => {
-    slot.innerHTML =
-      `<div class="card-content" style="transform:translateX(0);">
-         ${renderCardContent(pool[cursors[i]])}
-       </div>`;
+    slot.innerHTML = `<div class="card-content" style="transform:translateX(0);">${renderCardContent(pool[(start + i) % pool.length])}</div>`;
   });
 
-  const randDelay = () => Math.floor(Math.random() * (maxMs - minMs)) + minMs;
+  setInterval(() => {
+    slots.forEach((slot, i) => {
+      const oldContent = slot.querySelector(".card-content");
+      const nextIdx = (start + i + slots.length) % pool.length;
+      const newContent = document.createElement("div");
+      newContent.className = "card-content";
+      newContent.style.transform = "translateX(-100%)";
+      newContent.innerHTML = renderCardContent(pool[nextIdx]);
+      slot.appendChild(newContent);
 
-  const flipOne = () => {
-    // pick a random slot
-    const idx = Math.floor(Math.random() * slots.length);
-    const slot = slots[idx];
-    if (!slot) return;
-
-    const oldContent = slot.querySelector(".card-content");
-
-    // advance cursor
-    cursors[idx] = (cursors[idx] + slots.length) % pool.length;
-
-    const incoming = document.createElement("div");
-    incoming.className = "card-content";
-    incoming.style.transform = "translateX(-100%)";
-    incoming.innerHTML = renderCardContent(pool[cursors[idx]]);
-    slot.appendChild(incoming);
-
-    void incoming.offsetWidth; // reflow
-    incoming.style.transform = "translateX(0)";
-
-    if (oldContent) {
-      oldContent.classList.add("outgoing");
-      oldContent.style.transform = "translateX(100%)";
-      setTimeout(() => oldContent.remove(), slideMs);
-    }
-
-    // schedule next random flip
-    setTimeout(flipOne, randDelay());
-  };
-
-  // start the cycle
-  setTimeout(flipOne, randDelay());
+      void newContent.offsetWidth; // reflow
+      newContent.style.transform = "translateX(0)";
+      if (oldContent) {
+        oldContent.classList.add("outgoing");
+        oldContent.style.transform = "translateX(100%)";
+        setTimeout(() => oldContent.remove(), slideMs);
+      }
+    });
+    start = (start + slots.length) % pool.length;
+  }, intervalMs);
 };
-
 
 // -------- Nav + Footer --------
 const setActiveNav = () => {
@@ -213,6 +191,7 @@ function updateNavCondense(){
   }
 }
 
+
 function wireNavCondense() {
   // run now and after layout shifts
   updateNavCondense();
@@ -230,41 +209,5 @@ document.addEventListener("DOMContentLoaded", async () => {
   setActiveNav();
   setYear();
   renderHighlights();
-  rotateAnnouncementsGroup();    // bottom cards only, now staggered
+  rotateAnnouncementsGroup();
 });
-
-/* ---- Under Construction redirect (env-agnostic) ---- */
-const UC = (() => {
-  // Normalize a path to '/foo/bar.html' form (strip trailing slash, add .html if missing)
-  const norm = (pth) => {
-    try {
-      const url = new URL(pth, location.origin);
-      let out = url.pathname;
-      if (out.length > 1 && out.endsWith("/")) out = out.slice(0, -1);
-      if (!out.endsWith(".html")) out = out + ".html";
-      return out;
-    } catch { return pth; }
-  };
-
-  // Pages to mark as under construction (both with and without .html are accepted)
-  const PAGES = [
-    "pages/services", "pages/blog", "pages/privacy", "pages/terms",
-    "pages/open-source",
-  ].map(norm);
-
-  function maybeRedirect(){
-    let here = location.pathname;
-    if (here.length > 1 && here.endsWith("/")) here = here.slice(0, -1);
-    if (!here.endsWith(".html")) here = here + ".html";
-
-    if (here === norm("/under-construction.html")) return;
-    if (PAGES.includes(here)) {
-      const next = `/pages/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
-      location.replace(next);
-    }
-  }
-  return { maybeRedirect };
-})();
-
-// Run ASAP to avoid flicker
-UC.maybeRedirect();
