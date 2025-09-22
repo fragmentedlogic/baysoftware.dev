@@ -1,4 +1,4 @@
-// -------- Data --------
+// -------- Data ---------
 const allAnnouncements = [
   { title: "New OSS Release", body: "We shipped v1.2 of Ledgernaut—now with faster sync.", href: "pages/open-source.html" },
   { title: "Bug Bash Friday", body: "Community triage session this Friday @ 2pm CT.", href: "pages/blog.html" },
@@ -75,74 +75,48 @@ setInterval(() => {
   renderHighlights();
 }, 30 * 60 * 1000);
 
-// -------- Bottom Announcements --------
-const rotateAnnouncementsGroup = (minMs = 4000, maxMs = 9000, slideMs = 500) => {
+
+const rotateAnnouncementsGroup = (intervalMs = 6000, slideMs = 500) => {
   const slots = document.querySelectorAll("[data-announcement-slot]");
   if (!slots.length) return;
 
   const pool = allAnnouncements.filter(a => !highlightAnnouncements.includes(a));
-  if (!pool.length) return;
+  let start = 0;
 
-  const cursors = Array.from(slots, (_, i) => i % pool.length);
-
+  // Initial render
   slots.forEach((slot, i) => {
-    slot.innerHTML = `<div class="card-content" style="transform:translateX(0);">${renderCardContent(pool[cursors[i]])}</div>`;
+    slot.innerHTML = `<div class="card-content" style="transform:translateX(0);">${renderCardContent(pool[(start + i) % pool.length])}</div>`;
   });
 
-  const randDelay = () => Math.floor(Math.random() * (maxMs - minMs)) + minMs;
+  setInterval(() => {
+    slots.forEach((slot, i) => {
+      const oldContent = slot.querySelector(".card-content");
+      const nextIdx = (start + i + slots.length) % pool.length;
+      const newContent = document.createElement("div");
+      newContent.className = "card-content";
+      newContent.style.transform = "translateX(-100%)";
+      newContent.innerHTML = renderCardContent(pool[nextIdx]);
+      slot.appendChild(newContent);
 
-  const flipOne = () => {
-    const idx = Math.floor(Math.random() * slots.length);
-    const slot = slots[idx];
-    if (!slot) return;
-
-    const oldContent = slot.querySelector(".card-content");
-    cursors[idx] = (cursors[idx] + slots.length) % pool.length;
-
-    const incoming = document.createElement("div");
-    incoming.className = "card-content";
-    incoming.style.transform = "translateX(-100%)";
-    incoming.innerHTML = renderCardContent(pool[cursors[idx]]);
-    slot.appendChild(incoming);
-
-    void incoming.offsetWidth;
-    incoming.style.transform = "translateX(0)";
-
-    if (oldContent) {
-      oldContent.classList.add("outgoing");
-      oldContent.style.transform = "translateX(100%)";
-      setTimeout(() => oldContent.remove(), slideMs);
-    }
-
-    setTimeout(flipOne, randDelay());
-  };
-
-  setTimeout(flipOne, randDelay());
+      void newContent.offsetWidth; // reflow
+      newContent.style.transform = "translateX(0)";
+      if (oldContent) {
+        oldContent.classList.add("outgoing");
+        oldContent.style.transform = "translateX(100%)";
+        setTimeout(() => oldContent.remove(), slideMs);
+      }
+    });
+    start = (start + slots.length) % pool.length;
+  }, intervalMs);
 };
 
-// -------- Nav + Hamburger --------
-let activeIndicator;
-
-function initNav() {
-  const header = document.querySelector('header');
-  const nav = header?.querySelector('#primary-nav');
-  if (!header || !nav) return;
-
-  const btn = header.querySelector('.nav-toggle');
-  if (btn) {
-    btn.addEventListener('click', () => {
-      const open = header.classList.toggle('nav-open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-  }
-
-  nav.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', e => {
-      e.preventDefault();
-      const href = a.getAttribute('href');
-      if (!href) return;
-      navigate(href);
-    });
+// -------- Nav + Footer --------
+const setActiveNav = () => {
+  const currentPage = location.pathname.split("/").pop() || "index.html";
+  document.querySelectorAll("header nav a").forEach(a => {
+    const href = a.getAttribute("href") || "";
+    if (href.endsWith(currentPage)) a.classList.add("active");
+    if (currentPage === "index.html" && (href === "/" || href.endsWith("/index.html"))) a.classList.add("active");
   });
 
   if (!activeIndicator) {
@@ -219,27 +193,46 @@ function normalizePath(p) {
   return normalized;
 }
 
-function maybeRedirect(norm) {
-  if (UNDER_CONSTRUCTION_PAGES.includes(norm)) {
-    const absPath = "/under-construction.html"; // ✅ always root-based
-    location.replace(absPath);
-    return true;
-  }
-  return false;
+
+function wireNavCondense() {
+  // run now and after layout shifts
+  updateNavCondense();
+  window.addEventListener('resize', updateNavCondense, {passive: true});
+  // fonts/images can shift metrics
+  setTimeout(updateNavCondense, 100);
+  setTimeout(updateNavCondense, 500);
 }
 
-async function navigate(href) {
-  const path = href.endsWith(".html") ? href : href + ".html";
-  const norm = normalizePath(path);
+// --- Boot ---
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadLayout();            // inject header/footer
+  wireHamburger();               // hook hamburger behavior
+  wireNavCondense();             // compute condensed vs full
+  setActiveNav();
+  setYear();
+  renderHighlights();
+  rotateAnnouncementsGroup();
+});
 
   console.log(path);
   console.log(norm);
 
-  if (maybeRedirect(norm)) return;
+  // Pages to mark as under construction (both with and without .html are accepted)
+  const PAGES = [
+    "pages/services", "pages/blog", "pages/privacy", "pages/terms",
+    "pages/open-source",
+  ].map(norm);
 
-  if (norm === ".html" || norm === "index.html") {
-    window.location.href = "/";
-    return;
+  function maybeRedirect(){
+    let here = location.pathname;
+    if (here.length > 1 && here.endsWith("/")) here = here.slice(0, -1);
+    if (!here.endsWith(".html")) here = here + ".html";
+
+    if (here === norm("/under-construction.html")) return;
+    if (PAGES.includes(here)) {
+      const next = `pages/under-construction.html?from=${encodeURIComponent(location.pathname + location.search)}`;
+      location.replace(next);
+    }
   }
 
   try {
